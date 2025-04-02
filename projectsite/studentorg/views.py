@@ -28,5 +28,5 @@ class OrganizationUpdateView(UpdateView):
 
 class OrganizationDeleteView(DeleteView):
     model = Organization
-    template_name = 'org_delete_confirm.html'  # More standard naming
+    template_name = 'org_del.html'  # More standard naming
     success_url = reverse_lazy('organization-list') 
