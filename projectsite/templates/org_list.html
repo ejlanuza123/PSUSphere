@@ -50,7 +50,10 @@
                                     <td>{{ object.name }}</td>
                                     <td>{{ object.college }}</td>
                                     <td>{{ object.description }}</td>
-                                    <td><a href="{% url 'organization-edit' object.id %}">Edit</a></td>
+                                    <td>
+                                        <a href="{% url 'organization-edit' object.id %}" class="btn btn-sm btn-primary">Edit</a>
+                                        <a href="{% url 'organization-delete' object.id %}" class="btn btn-sm btn-danger">Delete</a>
+                                    </td>
                                     </tr>
                                     {% empty %}
                                     <tr>
