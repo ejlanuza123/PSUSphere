@@ -2,83 +2,56 @@ from django.core.management.base import BaseCommand
 from faker import Faker
 from studentorg.models import College, Program, Organization, Student, OrgMember
 
-class Command(BaseCommand):
+class Command (BaseCommand):
     help = 'Create initial data for the application'
 
-    def handle(self, *args, **kwargs):
-        self.stdout.write(self.style.NOTICE('Starting data population...'))
-        self.create_colleges(5)
-        self.create_programs(10)
-        self.create_organizations(10)
+    def handle (self, *args, **kwargs):
+        self.create_organization(10)
         self.create_students(50)
-        self.create_memberships(20)
-        self.stdout.write(self.style.SUCCESS('Data population completed successfully.'))
+        self.create_membership(10)
 
-    def create_colleges(self, count):
-        fake = Faker()
-        for _ in range(count):
-            college_name = fake.unique.company()
-            College.objects.get_or_create(college_name=college_name)
-        self.stdout.write(self.style.SUCCESS(f'{count} colleges created successfully.'))
-    
-    def create_programs(self, count):
-        fake = Faker()
-        colleges = list(College.objects.all())
-        if not colleges:
-            self.stdout.write(self.style.ERROR('No colleges found. Programs cannot be created.'))
-            return
-        
-        for _ in range(count):
-            Program.objects.create(
-                prog_name=fake.unique.job(),
-                college=fake.random_element(colleges)
-            )
-        self.stdout.write(self.style.SUCCESS(f'{count} programs created successfully.'))
-    
-    def create_organizations(self, count):
-        fake = Faker()
-        colleges = list(College.objects.all())
-        if not colleges:
-            self.stdout.write(self.style.ERROR('No colleges found. Organizations cannot be created.'))
-            return
-        
-        for _ in range(count):
+    def create_organization (self, count):
+        fake = Faker ()
+
+        for _ in range (count):
+            words = [fake.word() for _ in range(2)]
+            organization_name = ' '.join(words)
             Organization.objects.create(
-                name=fake.unique.company(),
-                college=fake.random_element(colleges),
-                description=fake.sentence()
+                name = organization_name.title(),
+                college = College.objects.order_by('?').first(),
+                description = fake.sentence()
             )
-        self.stdout.write(self.style.SUCCESS(f'{count} organizations created successfully.'))
 
-    def create_students(self, count):
+        self.stdout.write(self.style.SUCCESS(
+            'Initial data for organization created successfully.'
+        ))
+
+    def create_students (self, count):
         fake = Faker('en_PH')
-        programs = list(Program.objects.all())
-        if not programs:
-            self.stdout.write(self.style.ERROR('No programs found. Students cannot be created.'))
-            return
-        
-        for _ in range(count):
+
+        for _ in range (count):
             Student.objects.create(
-                student_id=f'{fake.random_int(2020, 2024)}-{fake.random_int(1000, 9999)}',
-                lastname=fake.last_name(),
-                firstname=fake.first_name(),
-                middlename=fake.last_name(),
-                program=fake.random_element(programs)
+                student_id = f"{fake.random_int(2020, 2024)}-{fake.random_int(1,8)}-{fake.random_number(digits=4)}",
+                lastname = fake.last_name(),
+                firstname = fake.first_name(),
+                middlename = fake.last_name(),
+                program = Program.objects.order_by('?').first()
             )
-        self.stdout.write(self.style.SUCCESS(f'{count} students created successfully.'))
 
-    def create_memberships(self, count):
+        self.stdout.write(self.style.SUCCESS(
+            'Initial data for students created successfully.'
+        ))
+
+    def create_membership (self, count):
         fake = Faker()
-        students = list(Student.objects.all())
-        organizations = list(Organization.objects.all())
-        if not students or not organizations:
-            self.stdout.write(self.style.ERROR('Students or organizations missing. Memberships cannot be created.'))
-            return
 
-        for _ in range(count):
+        for _ in range (count):
             OrgMember.objects.create(
-                student=fake.random_element(students),
-                organization=fake.random_element(organizations),
-                date_joined=fake.date_between(start_date='-2y', end_date='today')
+                student = Student.objects.order_by('?').first(),
+                organization = Organization.objects.order_by('?').first(),
+                date_joined = fake.date_between(start_date="-2y", end_date="today")
             )
-        self.stdout.write(self.style.SUCCESS(f'{count} student memberships created successfully.'))
+
+        self.stdout.write(self.style.SUCCESS(
+            'Initial data for student organization created successfully.'
+        ))
